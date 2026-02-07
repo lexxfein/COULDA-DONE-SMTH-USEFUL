@@ -17,10 +17,12 @@ function setOverlayMode(minutes) {
   // Reset all classes first
   overlay.className = "";
 
-  if (minutes < 3) {
+  if (minutes > 0 && minutes < 3) {
     overlay.classList.add("overlay-small");
   } else if (minutes < 10) {
     overlay.classList.add("overlay-medium");
+  } else if (minutes < 15){
+    overlay.classList.add("overlay-large");
   } else {
     overlay.classList.add("overlay-blocking");
   }
@@ -31,7 +33,7 @@ function setOverlayMode(minutes) {
  * Message tone escalates with time.
  */
 function getOverlayMessage(minutes) {
-  if (minutes < 3) {
+  if (minutes > 0 && minutes < 3) {
     return `You've been here for ${minutes} minute${minutes !== 1 ? "s" : ""}.`;
   }
 
@@ -39,7 +41,11 @@ function getOverlayMessage(minutes) {
     return `It's been ${minutes} minutes. This wasn't the plan.`;
   }
 
-  return `Good job! There goes ${minutes} minutes worth of work done.`;
+  if (minutes < 15) {
+    return `Good job! There goes ${minutes} minutes worth of work done.`;
+  }
+
+  return `Alexander was 16 when he was leading armies.\nNewton reshaped physics in his early 20s.\nYou opened this app again.`;
 }
 
 /**

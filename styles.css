@@ -1,11 +1,14 @@
 #time-distortion-overlay {
   position: fixed;
   z-index: 999999;
-  font-family: system-ui, sans-serif;
-  transition: all 0.3s ease;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: white;
+  text-align: center;
+  transition: all 0.35s ease;
+  white-space: pre-line;
 }
 
-/* Default – small */
+/* Small – subtle reminder */
 .overlay-small {
   bottom: 20px;
   right: 20px;
@@ -13,25 +16,62 @@
   font-size: 14px;
   background: rgba(0, 0, 0, 0.7);
   border-radius: 10px;
+  pointer-events: none;
+  max-width: 260px;
 }
 
-/* Medium warning */
+/* Medium – firmer nudge */
 .overlay-medium {
   bottom: 20px;
   right: 20px;
   padding: 16px 20px;
   font-size: 16px;
   background: rgba(0, 0, 0, 0.85);
+  border-radius: 12px;
+  pointer-events: none;
+  max-width: 300px;
 }
 
-/* Full intervention */
+/* Large – serious warning (pre-boss) */
+.overlay-large {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 28px 36px;
+  font-size: 20px;
+  background: rgba(0, 0, 0, 0.92);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  max-width: 420px;
+  line-height: 1.4;
+  pointer-events: auto;
+}
+
+/* Final boss – unavoidable */
 .overlay-blocking {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 30px 40px;
-  font-size: 22px;
-  background: rgba(0, 0, 0, 0.95);
-  border-radius: 16px;
+  padding: 40px 48px;
+  font-size: 24px;
+  background: rgba(0, 0, 0, 0.97);
+  border-radius: 8px; /* boxy, intentional */
+  box-shadow:
+    0 0 0 9999px rgba(0, 0, 0, 0.65), /* darkens whole screen */
+    0 30px 80px rgba(0, 0, 0, 0.8);
+  max-width: 520px;
+  line-height: 1.5;
   pointer-events: auto;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -48%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
