@@ -4,24 +4,29 @@ const SITE_KEY = location.hostname;
 // Record when this page session started
 const START_TIME = Date.now();
 
-// Create the overlay element
-const overlay = document.createElement("div");
-overlay.id = "time-distortion-overlay";
-document.body.appendChild(overlay);
+let overlay = null;
+
+/**
+ * Create overlay only when needed
+ */
+function createOverlay() {
+  overlay = document.createElement("div");
+  overlay.id = "time-distortion-overlay";
+  document.body.appendChild(overlay);
+}
 
 /**
  * Decide which visual mode the overlay should be in
  * based on how many minutes have passed.
  */
 function setOverlayMode(minutes) {
-  // Reset all classes first
   overlay.className = "";
 
-  if (minutes > 0 && minutes < 3) {
+  if (minutes < 3) {
     overlay.classList.add("overlay-small");
   } else if (minutes < 10) {
     overlay.classList.add("overlay-medium");
-  } else if (minutes < 15){
+  } else if (minutes < 15) {
     overlay.classList.add("overlay-large");
   } else {
     overlay.classList.add("overlay-blocking");
@@ -30,10 +35,9 @@ function setOverlayMode(minutes) {
 
 /**
  * Decide what text should be shown.
- * Message tone escalates with time.
  */
 function getOverlayMessage(minutes) {
-  if (minutes > 0 && minutes < 3) {
+  if (minutes < 3) {
     return `You've been here for ${minutes} minute${minutes !== 1 ? "s" : ""}.`;
   }
 
@@ -49,8 +53,7 @@ function getOverlayMessage(minutes) {
 }
 
 /**
- * Save time spent on this site using Chrome storage.
- * This persists even if the page reloads.
+ * Save time spent on this site
  */
 function saveTimeSpent() {
   chrome.storage.local.get([SITE_KEY], (data) => {
@@ -64,18 +67,23 @@ function saveTimeSpent() {
 
 /**
  * Main update loop
- * Runs once every minute.
  */
 function updateOverlay() {
   const elapsedMs = Date.now() - START_TIME;
   const minutesSpent = Math.floor(elapsedMs / 60000);
+
+  // 🔴 DO NOTHING for the first minute
+  if (minutesSpent < 1) return;
+
+  // Create overlay lazily
+  if (!overlay) createOverlay();
 
   setOverlayMode(minutesSpent);
   overlay.textContent = getOverlayMessage(minutesSpent);
   saveTimeSpent();
 }
 
-// Initial render (shows immediately)
+// First call still happens, but exits early
 updateOverlay();
 
 // Update every 60 seconds
