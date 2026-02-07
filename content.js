@@ -1,29 +1,76 @@
+// Identify the site (used as a storage key)
 const SITE_KEY = location.hostname;
+
+// Record when this page session started
 const START_TIME = Date.now();
 
+// Create the overlay element
 const overlay = document.createElement("div");
 overlay.id = "time-distortion-overlay";
 document.body.appendChild(overlay);
 
-function updateOverlay(minutes) {
-  const messages = [
-    `You've been here for ${minutes} minutes.`,
-    `This was supposed to be 5 minutes.`,
-    `${minutes} minutes gone. Just saying.`,
-    `You could've done something useful.`
-  ];
+/**
+ * Decide which visual mode the overlay should be in
+ * based on how many minutes have passed.
+ */
+function setOverlayMode(minutes) {
+  // Reset all classes first
+  overlay.className = "";
 
-  overlay.textContent = messages[minutes % messages.length];
+  if (minutes < 3) {
+    overlay.classList.add("overlay-small");
+  } else if (minutes < 10) {
+    overlay.classList.add("overlay-medium");
+  } else {
+    overlay.classList.add("overlay-blocking");
+  }
 }
 
-setInterval(() => {
-  const minutes = Math.floor((Date.now() - START_TIME) / 60000);
-  updateOverlay(minutes);
+/**
+ * Decide what text should be shown.
+ * Message tone escalates with time.
+ */
+function getOverlayMessage(minutes) {
+  if (minutes < 3) {
+    return `You've been here for ${minutes} minute${minutes !== 1 ? "s" : ""}.`;
+  }
 
+  if (minutes < 10) {
+    return `It's been ${minutes} minutes. This wasn't the plan.`;
+  }
+
+  return `Good job! There goes ${minutes} minutes worth of work done.`;
+}
+
+/**
+ * Save time spent on this site using Chrome storage.
+ * This persists even if the page reloads.
+ */
+function saveTimeSpent() {
   chrome.storage.local.get([SITE_KEY], (data) => {
-    const prev = data[SITE_KEY] || 0;
+    const previousMinutes = data[SITE_KEY] || 0;
+
     chrome.storage.local.set({
-      [SITE_KEY]: prev + 1
+      [SITE_KEY]: previousMinutes + 1
     });
   });
-}, 60000);
+}
+
+/**
+ * Main update loop
+ * Runs once every minute.
+ */
+function updateOverlay() {
+  const elapsedMs = Date.now() - START_TIME;
+  const minutesSpent = Math.floor(elapsedMs / 60000);
+
+  setOverlayMode(minutesSpent);
+  overlay.textContent = getOverlayMessage(minutesSpent);
+  saveTimeSpent();
+}
+
+// Initial render (shows immediately)
+updateOverlay();
+
+// Update every 60 seconds
+setInterval(updateOverlay, 60000);
