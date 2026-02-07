@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Time Distortion",
+  "version": "1.0",
+  "description": "Gently reminds you how long you've been wasting time.",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/*",
+        "*://*.instagram.com/*",
+        "*://*.twitter.com/*",
+        "*://*.x.com/*"
+      ],
+      "js": ["content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
